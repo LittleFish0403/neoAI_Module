@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/LittleFish0403/neoAI_Module">
-    <img src="image/kx_background.png" alt="Logo" width="120" height="80">
+    <img src="image/logo.png" alt="Logo" width="120" height="80">
   </a>
 
   <h3 align="center">绝赞 AI 学习ING</h3>
