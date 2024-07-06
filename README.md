@@ -20,10 +20,13 @@
   <p align="center">
     速速加入AI模块的重建工程，下一代AI大神就是你😎👉
     <br />
-
-
 </p>
+  <p align="center">
+    Contributer：
+  </p>
 
+# 简介
+这里是CS-Wiki AI模块的重建基地，所有需要更新的部分在这里由大家上传并整合
 
 <!-- links -->
 [your-project-path]:LittleFish0403/neoAI_Module
