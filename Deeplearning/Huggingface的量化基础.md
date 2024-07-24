@@ -75,4 +75,96 @@ FP32
 ```
 下图展示了FP32可以存储多大和多小的数字
 ![alt text](/image/QQ_1721407068321.png)
-这类数据类型在机器学习中非常重要，因为大多数模型将他的权重存储在FP32中
+这类数据类型在机器学习中非常重要，因为大多数模型将他的权重存储在FP32中。
+FP16 (Half-Precision Floating-Point) 的表示方式与整数和分数部分的位数有些不同。FP16 使用 1 位符号位、5 位指数位和 10 位尾数位。具体的位数分配如下：
+
+- 符号位 (Sign Bit, S)：1 位
+- 指数位 (Exponent Bits, E)：5 位
+- 尾数位 (Mantissa Bits, M)：10 位
+
+根据 IEEE 754 标准，FP16 的表示范围和精度如下：
+
+- 指数范围是 -14 到 15（经过偏移量为 15 的偏移后）。
+- 尾数部分是 10 位，有效尾数是 1 + 尾数部分。
+- 最小的非零正数：2^(-14) * 2^(-10) ≈ 6.10 x 10^-5（次正规数）。
+- 最大值：2^(15) * (2 - 2^-10) ≈ 65504。
+
+![alt text](/image/QQ_1721785559240.png)
+而bfloat16 的位分配如下：
+
+- 符号位 (Sign Bit, S)：1 位
+- 指数位 (Exponent Bits, E)：8 位
+- 尾数位 (Mantissa Bits, M)：7 位
+
+由于它的指数位与 FP32 的指数位相同，因此它们的指数范围相同。这意味着 bfloat16 的指数范围与 FP32 一样，从 -126 到 +127（偏移量为 127 的偏移后）。
+
+根据 IEEE 754 标准，bfloat16 的表示范围和精度如下：
+
+- 指数范围是 -126 到 127（经过偏移量为 127 的偏移后）。
+- 尾数部分是 7 位，有效尾数是 1 + 尾数部分。
+- 最小的非零正数：2^(-126) ≈ 1.18 x 10^-38（次正规数）。
+- 最大值：2^(127) * (2 - 2^-7) ≈ 3.39 x 10^38。
+
+以下是浮点数在pytorch中的类型表：
+![alt text](/image/QQ_1721785604190.png)
+要在 PyTorch 中创建一个 16 位的brain浮点数，只需将 `dtype` 设置为 `torch.bfloat16`。
+
+现在，让我们来看看将一个python值转化为具有特定类型的pytorch张量时会发生什么
+```python
+# 默认情况下，Python 使用 FP64 存储浮点数数据
+value = 1/3
+
+# 使用 format 函数将浮点数打印出后 60 位小数点
+format(value, '.60f')
+#大概率打出来的是0.33333333333333+后面的近似值
+
+#现在，让我们创建一个张量，类型为torch.bfloat16
+tensor_bf16 = 
+torch.tenser(value, dtype=torch.bfloat16)
+#打印它，你将会得到相同的答案
+print(f"fp64 tensor: {format(tensor_fp64.item(), '.60f')}")
+
+#以下就自己跑跑吧😋
+
+# 32 位浮点数
+tensor_fp32 = torch.tensor(value, dtype=torch.float32)
+print(f"fp32 tensor: {format(tensor_fp32.item(), '.60f')}")
+
+# 16 位浮点数
+tensor_fp16 = torch.tensor(value, dtype=torch.float16)
+print(f"fp16 tensor: {format(tensor_fp16.item(), '.60f')}")
+
+# 16 位brain浮点数
+tensor_bf16 = torch.tensor(value, dtype=torch.bfloat16)
+print(f"bf16 tensor: {format(tensor_bf16.item(), '.60f')}")
+```
+到这里我们应该可以得出一个结论
+**数据有的位数越少，近似值的精确度就越低，而对于bfloat16，正如我们之前看到的，精度比FP16差，但是bfloat16的表示范围大于FP16。**
+可以通过`torch.finfo`函数来检验这一点
+```python
+# 获取 16 位brain浮点数的信息
+torch.finfo(torch.bfloat16)
+'''
+返回：finfo(resolution=0.0078125, 
+min=-3.3895313892515355e+38, 
+max=3.3895313892515355e+38, 
+eps=0.0078125, 
+tiny=1.1754943508222875e-38)
+'''
+
+
+
+# 获取 32 位浮点数的信息
+torch.finfo(torch.float32)
+
+# 获取 16 位浮点数的信息
+torch.finfo(torch.float16)
+
+# 获取 64 位浮点数的信息
+torch.finfo(torch.float64)
+```
+
+### 4.Downcasting(向下转换)
+向下转换 (Downcasting) 是指将数据从一种更高精度的数值类型转换为一种更低精度的数值类型。
+例如，将 64 位浮点数 (float64) 转换为 32 位浮点数 (float32)，或将 32 位浮点数 (float32) 转换为 16 位浮点数 (float16) 或 16 位brain浮点数 (bfloat16)。
+向下转换在深度学习中尤为重要，因为它可以显著减少模型的内存占用和计算时间，但也会带来精度损失。
